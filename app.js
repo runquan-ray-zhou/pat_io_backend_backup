@@ -19,17 +19,21 @@ app.get("/", (req, res) => {
 app.post("/api/chat", async (req, res) => {
   try {
     const { message } = req.body;
+    console.log("Received message:", message);
+
     const completion = await openAIClient.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: message }],
     });
 
+    console.log("OpenAI response:", completion.choices[0].message.content);
     res.json({ message: completion.choices[0].message.content });
   } catch (error) {
     console.error("Error processing chat request:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing your request." });
+    res.status(500).json({
+      error:
+        error.message || "An error occurred while processing your request.",
+    });
   }
 });
 
