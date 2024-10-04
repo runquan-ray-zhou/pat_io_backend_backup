@@ -21,19 +21,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Endpoint to test the server
-app.get("/", (req, res) => {
-  res.status(200).send("Welcome to the Patio Backend!");
-});
-
 // Helper function: Speech-to-Text (Google Cloud Speech-to-Text API)
-async function speechToText(audioBuffer) {
+async function speechToText(audioBuffer, userLanguage) {
   const request = {
     audio: { content: audioBuffer.toString("base64") }, // Pass the audio buffer
     config: {
       encoding: "LINEAR16",
       sampleRateHertz: 16000,
-      languageCode: "en-US",
+      languageCode: userLanguage,
     }, // Config for the speech recognition
   };
   const [response] = await speechClient.recognize(request); // Google API call
@@ -68,12 +63,12 @@ app.post("/api/chat", async (req, res) => {
 
     // Step 1: If audio input is provided, convert speech to text using Google Speech-to-Text
     if (audioInput) {
-      userText = await speechToText(audioInput); // Google API usage
+      userText = await speechToText(audioInput, userLanguage); // Recognize speech in user's language
       console.log("Converted speech to text:", userText);
     }
 
-    // Step 2: Translate user message to the target language using Google Translation
-    const translatedText = await translateText(userText, targetLanguage); // Google API usage
+    // Step 2: Translate user message to the target language if necessary
+    const translatedText = await translateText(userText, targetLanguage); // Translate to target language for OpenAI processing
     console.log("Translated text:", translatedText);
 
     // Step 3: Send translated text to OpenAI for processing
@@ -84,8 +79,8 @@ app.post("/api/chat", async (req, res) => {
     const aiResponse = completion.choices[0].message.content;
     console.log("OpenAI response:", aiResponse);
 
-    // Step 4: Translate OpenAI's response back to the user's language using Google Translation
-    const finalResponse = await translateText(aiResponse, userLanguage); // Google API usage
+    // Step 4: Translate OpenAI's response back to the user's language
+    const finalResponse = await translateText(aiResponse, userLanguage); // Translate AI response back to user's language
     console.log(
       "Translated AI response back to user's language:",
       finalResponse
@@ -95,7 +90,7 @@ app.post("/api/chat", async (req, res) => {
     const speechResponse = await textToSpeechConversion(
       finalResponse,
       userLanguage
-    ); // Google API usage
+    ); // Respond in user's language
 
     // Return both text and speech versions
     res.json({
@@ -111,8 +106,6 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-app.get("*", (req, res) => {
-  res.status(404).send("Not Found");
+app.listen(3999, () => {
+  console.log("Server running on port 3999");
 });
-
-module.exports = app;
