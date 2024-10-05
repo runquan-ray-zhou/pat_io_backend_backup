@@ -106,6 +106,4 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-app.listen(3999, () => {
-  console.log("Server running on port 3999");
-});
+module.exports = app;
