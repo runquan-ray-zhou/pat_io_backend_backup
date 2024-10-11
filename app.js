@@ -38,7 +38,7 @@ app.post("/api/chat", async (req, res) => {
 
     // Step 3: Send translated text to OpenAI for processing
     const completion = await openAIClient.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "ft:gpt-4o-mini-2024-07-18:personal:patio-v1:AGgRMqgw",
       messages: [{ role: "user", content: translatedText }],
     });
     const aiResponse = completion.choices[0].message.content;
