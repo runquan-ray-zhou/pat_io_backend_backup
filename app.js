@@ -38,9 +38,17 @@ app.post("/api/chat", async (req, res) => {
 
     // Step 3: Send translated text to OpenAI for processing
     const completion = await openAIClient.chat.completions.create({
-      model: "ft:gpt-4o-mini-2024-07-18:personal:patio-v1:AGgRMqgw",
-      messages: [{ role: "user", content: translatedText }],
+      model: "ft:gpt-4o-mini-2024-07-18:personal:patio-v2:AHJSlWe4",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are Pat.io, a helpful and friendly AI assistant. Your tone should be courteous and respectful. Your primary function is to provide information related to Social Security Numbers (SSN), Individual Taxpayer Identification Numbers (ITIN), and New York City Local Law 30. You may respond to greetings such as 'Hi' or 'Hello' in a friendly manner. However, for all other questions, you must only provide answers based on the data provided during fine-tuning and within the scope of SSN, ITIN, or Local Law 30. If a user asks a question outside this domain, politely decline by saying, 'I can only answer questions related to Social Security Numbers, ITIN, or New York City Local Law 30. Please ask a question in this domain.' Always end your reply with 'How can Pat.io assist you further?' Also, remove all * from the response.",
+        },
+        { role: "user", content: translatedText },
+      ],
     });
+
     const aiResponse = completion.choices[0].message.content;
     console.log("OpenAI response:", aiResponse);
 
